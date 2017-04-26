@@ -1,0 +1,60 @@
+#coding=utf-8
+'''
+Created on 2017��4��10��
+@author: gb
+'''
+import numpy as np
+
+
+
+# Load data from files
+def load_data_and_labels(question_data_file, answer_data_file,answer_data_file_wrong):
+    
+    question_examples = list(open(question_data_file, "r").readlines())
+    question_examples = [s.strip() for s in question_examples]
+  
+    answer_examples = list(open(answer_data_file, "r").readlines())
+    answer_examples = [s.strip() for s in answer_examples]
+    
+    answer_examples_wrong = list(open(answer_data_file_wrong, "r").readlines())
+    answer_examples_wrong = [s.strip() for s in answer_examples_wrong]
+    # Split by words
+    x_question = [sent.replace('？', '') for sent in question_examples]
+    x_answer= [sent.replace('.','') for sent in answer_examples] 
+    x_answer_wrong=[sent.replace('.','') for sent in answer_examples_wrong] 
+    return [x_question, x_answer,x_answer_wrong]
+
+
+
+
+
+#split data to batch order to train use batch
+def batch_iter(data, batch_size, num_epochs, shuffle=True):
+
+    data = np.array(data)
+
+    data_size = len(data)
+
+    num_batches_per_epoch = int((len(data)-1)/batch_size) + 1
+
+    for epoch in range(num_epochs):
+
+        # Shuffle the data at each epoch
+
+        if shuffle:
+
+            shuffle_indices = np.random.permutation(np.arange(data_size))
+
+            shuffled_data = data[shuffle_indices]
+
+        else:
+
+            shuffled_data = data
+
+        for batch_num in range(num_batches_per_epoch):
+
+            start_index = batch_num * batch_size
+
+            end_index = min((batch_num + 1) * batch_size, data_size)
+
+            yield shuffled_data[start_index:end_index]
